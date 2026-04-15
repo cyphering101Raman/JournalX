@@ -4,6 +4,12 @@ export interface IJournal extends Document {
   userId: mongoose.Types.ObjectId;
   title: string;
   content: string;
+  insights: {
+    mood: string;
+    summary: string;
+    tags: string[];
+    createdAt: Date;
+  }[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -23,6 +29,14 @@ const JournalSchema = new Schema<IJournal>(
       type: String,
       default: "",
     },
+    insights: [
+      {
+        mood: { type: String },
+        summary: { type: String },
+        tags: [{ type: String }],
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt

@@ -9,6 +9,12 @@ interface Journal {
   id: string;
   title: string;
   content: string;
+  insights: {
+    mood: string;
+    summary: string;
+    tags: string[];
+    createdAt: Date;
+  }[];
 }
 
 function getFormattedDate() {
@@ -43,7 +49,8 @@ export default function JournalWorkspace() {
           const mapped = data.journals.map((j: any) => ({
             id: j._id,
             title: j.title,
-            content: j.content
+            content: j.content,
+            insights: j.insights,
           }));
           setJournals(mapped);
           
@@ -75,7 +82,8 @@ export default function JournalWorkspace() {
         const newJournal = {
           id: data.journal._id,
           title: data.journal.title,
-          content: data.journal.content
+          content: data.journal.content,
+          insights: data.journal.insights || []
         };
         
         // Add securely to the top of the local state array natively
@@ -87,10 +95,10 @@ export default function JournalWorkspace() {
     }
   };
 
-  const handleUpdateJournal = (title: string, content: string) => {
+  const handleUpdateJournal = (title: string, content: string, insights?: any[]) => {
     setJournals(prev => prev.map(journal => 
       journal.id === activeJournalId 
-        ? { ...journal, title, content }
+        ? { ...journal, title, content, insights: insights || journal.insights }
         : journal
     ));
   };
@@ -151,6 +159,7 @@ export default function JournalWorkspace() {
             journalId={activeJournal.id}
             initialTitle={activeJournal.title} 
             initialContent={activeJournal.content} 
+            initialInsights={activeJournal.insights}
             onUpdate={handleUpdateJournal}
           />
         )}
