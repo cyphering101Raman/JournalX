@@ -2,16 +2,16 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/app/lib/db";
 import { User } from "@/app/models/User";
 import { comparePassword } from "@/app/lib/hash";
+import { validateLogin } from "@/app/utils/validators";
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
+    const body = await req.json();
+    const { email, password } = body;
 
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: "Email & password required" },
-        { status: 400 }
-      );
+    const error = validateLogin(body);
+    if (error) {
+      return NextResponse.json({ error }, { status: 400 });
     }
 
     await connectDB();

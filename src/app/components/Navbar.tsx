@@ -8,7 +8,7 @@ export default async function Navbar() {
   const isLoggedIn = !!session?.value;
 
   return (
-    <div className="fixed top-0 left-0 w-full z-50 text-white bg-[#0f172a]/80 backdrop-blur-md border-b border-white/5 shadow-sm">
+    <div className="fixed top-0 left-0 w-full z-50 text-white bg-[#0f172a]/80 backdrop-blur-md">
       <nav className="flex items-center justify-between px-20 py-4 max-w-[1440px] mx-auto w-full">
         <Link href="/" className="group">
           <h1 className="text-xl font-bold tracking-wide text-indigo-50 hover:text-white transition-colors">
