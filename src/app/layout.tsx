@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI JOURNAL",
-  description: "AI JOURNAL",
+  title: "JournalX",
+  description: "The AI-Powered Journaling Platform",
 };
 
 import { Toaster } from "react-hot-toast";
