@@ -118,9 +118,9 @@ export async function generateRangeSummary(preparedInput: string) {
       patterns: Array.isArray(parsed.patterns) ? parsed.patterns.slice(0, 5) : [],
       overallMood: parsed.overallMood || "Neutral",
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("AI Range Summary Error:", error);
-    throw new Error("Failed to generate range summary");
+    throw new Error(`Failed to generate range summary: ${error.message}`);
   }
 }
 

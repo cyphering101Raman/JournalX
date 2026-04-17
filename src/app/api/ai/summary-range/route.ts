@@ -5,7 +5,19 @@ import { Journal } from "@/app/models/Journal";
 import { AIGeneration } from "@/app/models/AIGeneration";
 import { generateJournalInsight, generateRangeSummary } from "@/app/lib/ai";
 
+function getTimeUntilPSTMidnight() {
+  const now = new Date();
+  const ptTime = new Date(now.toLocaleString("en-US", { timeZone: "America/Los_Angeles" }));
+  const midnight = new Date(ptTime);
+  midnight.setHours(24, 0, 0, 0);
+  const diff = midnight.getTime() - ptTime.getTime();
+  const h = Math.floor(diff / (1000 * 60 * 60));
+  const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  return `${h}h ${m}m`;
+}
+
 export async function POST(req: Request) {
+  const startTime = Date.now();
   try {
     const { startDate, endDate } = await req.json();
 
@@ -118,9 +130,19 @@ Tags: ${insight.tags.join(", ")}`;
     return NextResponse.json({ journals, preparedInput, aiSummary }, { status: 200 });
 
   } catch (error: any) {
+    const duration = ((Date.now() - startTime) / 1000).toFixed(2);
     console.error("Summary Range API Error:", error);
+
+    let message = error.message || "Internal Server Error";
+    
+    // Detect Gemini Rate Limit / Quota Errors
+    if (message.includes("429") || message.toLowerCase().includes("exhausted")) {
+      const waitTime = getTimeUntilPSTMidnight();
+      message = `Daily AI limit reached. Please try again in ${waitTime} (when the quota resets).`;
+    }
+
     return NextResponse.json(
-      { error: error.message || "Internal Server Error" },
+      { error: message, duration },
       { status: 500 }
     );
   }

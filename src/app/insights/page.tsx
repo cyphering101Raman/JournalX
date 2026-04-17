@@ -83,11 +83,6 @@ export default function InsightsPage() {
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
-  // Dummy history data
-  const history = [
-    { id: "1", range: "Apr 1 – Apr 7" },
-    { id: "2", range: "Apr 10 – Apr 15" },
-  ];
   const canGenerate = startDate && endDate && !loading;
 
   return (
@@ -107,11 +102,10 @@ export default function InsightsPage() {
               <button
                 key={item._id}
                 onClick={() => handleSelectHistory(item)}
-                className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 border ${
-                  isActive 
-                    ? "bg-indigo-600/10 text-indigo-400 border-indigo-500/30" 
+                className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 border ${isActive
+                    ? "bg-indigo-600/10 text-indigo-400 border-indigo-500/30"
                     : "bg-transparent text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-200 border-transparent hover:border-zinc-800"
-                }`}
+                  }`}
               >
                 {formatDateLabel(item.startDate)} — {formatDateLabel(item.endDate)}
               </button>
@@ -169,7 +163,7 @@ export default function InsightsPage() {
                     </div>
                   )}
                   {!loading && (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-1 transition-transform"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-1 transition-transform"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
                   )}
                 </button>
               </div>
@@ -179,7 +173,7 @@ export default function InsightsPage() {
           {/* Result Display Section */}
           <section id="report-section" className="space-y-6 scroll-mt-24">
             <h3 className="text-lg font-semibold text-zinc-200">Report</h3>
-            
+
             {!result && !loading && (
               <div className="min-h-[300px] rounded-3xl border-2 border-dashed border-zinc-800 bg-zinc-900/10 flex flex-col items-center justify-center text-center p-10 group hover:bg-zinc-900/20 transition-all">
                 <div className="w-16 h-16 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-4 text-zinc-600 group-hover:text-zinc-400 transition-colors">
@@ -223,8 +217,8 @@ export default function InsightsPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                     <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest">Range</p>
-                     <p className="text-zinc-300 font-medium">{formatDateLabel(startDate)} — {formatDateLabel(endDate)}</p>
+                    <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest">Range</p>
+                    <p className="text-zinc-300 font-medium">{formatDateLabel(startDate)} — {formatDateLabel(endDate)}</p>
                   </div>
                 </div>
 
@@ -241,8 +235,8 @@ export default function InsightsPage() {
                   <h4 className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest">Identified Patterns</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {result.patterns.map((pattern, i) => (
-                      <div 
-                        key={i} 
+                      <div
+                        key={i}
                         className="p-5 rounded-2xl bg-zinc-900/80 border border-zinc-800 hover:border-zinc-700 transition-colors flex items-start gap-3 group"
                       >
                         <div className="w-6 h-6 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-[10px] text-indigo-400 font-bold group-hover:bg-indigo-500 group-hover:text-white transition-all">
