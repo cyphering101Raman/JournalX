@@ -25,6 +25,12 @@ export default async function Navbar() {
               >
                 Journal Editor
               </Link>
+              <Link
+                href="/insights"
+                className="text-sm font-medium hover:text-zinc-300 transition-colors"
+              >
+                Insights
+              </Link>
               <LogoutButton />
             </>
           ) : (
