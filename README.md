@@ -81,9 +81,11 @@ A minimal, premium environment that auto-saves your thoughts and analyzes them i
 Extract a single-word mood and a concise summary instantly. Zoom out to see emotional trends and recurring patterns over customized date ranges.
 
 <div align="center">
-  <img src="public/ai-insight.png" alt="Daily AI Insight" width="48%" />
-  &nbsp;
-  <img src="public/weekly-insight.png" alt="Weekly Analytics" width="48%" />
+  <img src="public/ai-insight.png" alt="Daily AI Insight" width="100%" />
+</div>
+<br/>
+<div align="center">
+  <img src="public/weekly-insight.png" alt="Weekly Analytics" width="100%" />
 </div>
 
 ---
