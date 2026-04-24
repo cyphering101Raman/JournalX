@@ -42,7 +42,7 @@ JournalX is an AI-powered personal space that transforms raw daily thoughts into
 
 - Node.js installed
 - A MongoDB cluster
-- A Gemini AI API Key
+- AI API Key
 
 ### Run Locally
 
