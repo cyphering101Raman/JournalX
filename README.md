@@ -34,7 +34,7 @@ JournalX is an AI-powered personal space that transforms raw daily thoughts into
 - **Frontend:** Next.js, Tiptap, Framer Motion, Tailwind CSS
 - **Backend:** Next.js (Server Components)
 - **Database:** MongoDB
-- **AI Integrations:** Google Generative AI 
+- **AI Integrations:** Generative AI 
 
 ## Getting Started
 
@@ -61,7 +61,7 @@ JournalX is an AI-powered personal space that transforms raw daily thoughts into
    npm run dev
    ```
 
-## Roadmap
+## Roadmap ( Upcoming features )
 
 - 🛡️ **End-to-End Encryption:** Total thought security and decentralization.
 - 📊 **Advanced Visual Analytics:** Mood-over-time scatter plots and word-count correlation charts.
