@@ -2,6 +2,14 @@ import { Request, Response, NextFunction } from "express";
 import { AuthService } from "../services/auth.service";
 import { validateEmail, validatePassword } from "../utils/validators";
 
+const isProd = process.env.NODE_ENV === "production";
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: isProd,
+  sameSite: (isProd ? "none" : "lax") as "none" | "lax",
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+};
+
 export class AuthController {
   static async signup(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -20,11 +28,7 @@ export class AuthController {
 
       const result = await AuthService.signup(email, password);
 
-      res.cookie("token", result.token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
+      res.cookie("token", result.token, COOKIE_OPTIONS);
 
       res.status(201).json(result);
     } catch (error: any) {
@@ -37,11 +41,7 @@ export class AuthController {
       const { email, password } = req.body;
       const result = await AuthService.login(email, password);
 
-      res.cookie("token", result.token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
+      res.cookie("token", result.token, COOKIE_OPTIONS);
 
       res.status(200).json(result);
     } catch (error: any) {
@@ -50,7 +50,11 @@ export class AuthController {
   }
 
   static async logout(_req: Request, res: Response): Promise<void> {
-    res.clearCookie("token");
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: (isProd ? "none" : "lax") as "none" | "lax",
+    });
     res.status(200).json({ message: "Logged out successfully." });
   }
 }

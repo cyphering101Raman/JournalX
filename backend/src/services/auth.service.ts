@@ -39,9 +39,21 @@ export class AuthService {
       throw new Error("Invalid credentials.");
     }
 
-    const isMatch = await verifyPassword(password, user.passwordHash);
+    // Support both passwordHash and legacy password field
+    const hashedPassword = user.passwordHash || user.get("password") || (user as any).password;
+    if (!hashedPassword) {
+      throw new Error("Invalid credentials.");
+    }
+
+    const isMatch = await verifyPassword(password, hashedPassword);
     if (!isMatch) {
       throw new Error("Invalid credentials.");
+    }
+
+    // Auto-migrate legacy field to passwordHash if needed
+    if (!user.passwordHash && hashedPassword) {
+      user.passwordHash = hashedPassword;
+      await user.save();
     }
 
     const payload: JwtPayload = { userId: user._id.toString(), email: user.email };

@@ -7,14 +7,25 @@ export class JournalService {
 
   static async saveJournal(
     userId: string,
-    dateKey: string,
+    journalId?: string,
+    dateKey?: string,
     title?: string,
     content?: string
   ): Promise<IJournal> {
-    const finalTitle = title && title.trim().length > 0 ? title : formatTitleDate(dateKey);
+    if (journalId) {
+      const existing = await Journal.findOne({ _id: journalId, userId });
+      if (existing) {
+        if (title !== undefined) existing.title = title;
+        if (content !== undefined) existing.content = content;
+        return existing.save();
+      }
+    }
+
+    const key = dateKey && dateKey.trim().length > 0 ? dateKey : new Date().toISOString();
+    const finalTitle = title && title.trim().length > 0 ? title : formatTitleDate(key);
 
     return Journal.findOneAndUpdate(
-      { userId, dateKey },
+      { userId, dateKey: key },
       { title: finalTitle, content: content ?? "" },
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );

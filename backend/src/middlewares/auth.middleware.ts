@@ -14,10 +14,7 @@ export const authenticateUser = (
   next: NextFunction
 ): void => {
   try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.startsWith("Bearer ")
-      ? authHeader.split(" ")[1]
-      : req.cookies?.token;
+    const token = req.cookies?.token;
 
     if (!token) {
       res.status(401).json({ error: "Unauthorized: Missing authentication token" });

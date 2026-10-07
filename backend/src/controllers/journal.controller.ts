@@ -37,8 +37,8 @@ export class JournalController {
         return;
       }
 
-      const { dateKey, title, content } = req.body;
-      const journal = await JournalService.saveJournal(userId, dateKey, title, content);
+      const { journalId, dateKey, title, content } = req.body;
+      const journal = await JournalService.saveJournal(userId, journalId, dateKey, title, content);
       res.status(200).json({ message: "Journal saved successfully", journal });
     } catch (error) {
       next(error);
@@ -59,6 +59,31 @@ export class JournalController {
 
       const journals = await JournalService.getAllJournals(userId);
       res.status(200).json({ journals });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async deleteJournal(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+
+      const { id } = req.params;
+      const success = await JournalService.deleteJournal(userId, id);
+      if (!success) {
+        res.status(404).json({ error: "Journal entry not found" });
+        return;
+      }
+
+      res.status(200).json({ message: "Journal deleted successfully" });
     } catch (error) {
       next(error);
     }
