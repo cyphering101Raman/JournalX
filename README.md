@@ -3,7 +3,7 @@
 > Journaling that looks back at you.
 
 <div align="center">
-  <img src="public/Home-Page.png" alt="JournalX Welcome" width="100%" />
+  <img src="frontend/public/Home-Page.png" alt="JournalX Welcome" width="100%" />
 </div>
 
 ## Overview
@@ -73,7 +73,7 @@ JournalX is an AI-powered personal space that transforms raw daily thoughts into
 A minimal, premium environment that auto-saves your thoughts and analyzes them in real-time.
 
 <div align="center">
-  <img src="public/editor-section.png" alt="Editor View" width="100%" />
+  <img src="frontend/public/editor-section.png" alt="Editor View" width="100%" />
 </div>
 <br/>
 
@@ -81,11 +81,11 @@ A minimal, premium environment that auto-saves your thoughts and analyzes them i
 Extract a single-word mood and a concise summary instantly. Zoom out to see emotional trends and recurring patterns over customized date ranges.
 
 <div align="center">
-  <img src="public/ai-insight.png" alt="Daily AI Insight" width="100%" />
+  <img src="frontend/public/ai-insight.png" alt="Daily AI Insight" width="100%" />
 </div>
 <br/>
 <div align="center">
-  <img src="public/weekly-insight.png" alt="Weekly Analytics" width="100%" />
+  <img src="frontend/public/weekly-insight.png" alt="Weekly Analytics" width="100%" />
 </div>
 
 ---
