@@ -58,8 +58,10 @@ export default function JournalWorkspace() {
 
   const handleCreateNew = async () => {
     const defaultTitle = getFormattedDate();
+    const dateKey = new Date().toISOString();
     try {
       const { data } = await api.post("/journal/save", {
+        dateKey,
         title: defaultTitle,
         content: "",
       });
@@ -71,7 +73,7 @@ export default function JournalWorkspace() {
         insights: data.journal.insights || [],
       };
 
-      setJournals([newJournal, ...journals]);
+      setJournals((prev) => [newJournal, ...prev.filter((j) => j.id !== newJournal.id)]);
       setActiveJournalId(newJournal.id);
     } catch (e) {
       console.error("Failed to prep a new journal entry");

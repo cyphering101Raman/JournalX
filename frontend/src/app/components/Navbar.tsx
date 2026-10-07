@@ -4,8 +4,8 @@ import LogoutButton from "./LogoutButton";
 
 export default async function Navbar() {
   const cookieStore = await cookies();
-  const session = cookieStore.get("auth-session");
-  const isLoggedIn = !!session?.value;
+  const token = cookieStore.get("token")?.value || cookieStore.get("auth-session")?.value;
+  const isLoggedIn = !!token;
 
   return (
     <div className="fixed top-0 left-0 w-full z-50">

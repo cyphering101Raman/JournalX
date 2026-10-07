@@ -13,6 +13,7 @@ export default function LogoutButton() {
     setLoading(true);
     try {
       await api.post("/auth/logout");
+      document.cookie = "auth-session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
       toast.success("Logged out successfully");
       window.location.href = "/";
     } catch {

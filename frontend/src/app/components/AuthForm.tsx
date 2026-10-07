@@ -48,6 +48,7 @@ export default function AuthForm({ type }: { type: "login" | "signup" }) {
 
     try {
       const { data } = await api.post(`/auth/${type}`, form);
+      document.cookie = "auth-session=true; path=/; max-age=604800; SameSite=Lax";
       toast.success(type === "login" ? "Logged in successfully!" : "Account created successfully!");
       window.location.href = "/";
     } catch (err: any) {
