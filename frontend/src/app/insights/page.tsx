@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import RangeCalendar from "../components/RangeCalendar";
 import toast from "react-hot-toast";
+import api from "@/app/lib/axios";
 
 interface AISummary {
   summary: string;
@@ -19,9 +20,8 @@ export default function InsightsPage() {
 
   const fetchHistory = async () => {
     try {
-      const res = await fetch("/api/ai/summary-range/history");
-      const data = await res.json();
-      if (res.ok) setHistoryList(data.history);
+      const { data } = await api.get("/ai/summary-range/history");
+      if (data?.history) setHistoryList(data.history);
     } catch (err) {
       console.error("History fetch error:", err);
     }
@@ -53,24 +53,12 @@ export default function InsightsPage() {
 
     setLoading(true);
     try {
-      const response = await fetch("/api/ai/summary-range", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ startDate, endDate }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to generate summary");
-      }
-
-      setResult(data.aiSummary);
-      toast.success("Summary generated successfully!");
-      fetchHistory(); // Refresh sidebar
-    } catch (error: any) {
-      console.error("Generation Error:", error);
-      toast.error(error.message || "Something went wrong");
+      const { data } = await api.post("/ai/summary-range", { startDate, endDate });
+      setResult(data.summary || data);
+      toast.success("Generated Range Insights ✨");
+      fetchHistory();
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || "Failed to generate summary");
     } finally {
       setLoading(false);
     }

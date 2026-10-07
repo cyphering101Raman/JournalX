@@ -4,10 +4,10 @@ import JournalWorkspace from "@/app/components/JournalWorkspace";
 
 export default async function JournalEditorPage() {
   const cookieStore = await cookies();
-  const session = cookieStore.get("auth-session");
+  const token = cookieStore.get("token")?.value || cookieStore.get("auth-session")?.value;
 
   // Authentication Check
-  if (!session?.value) {
+  if (!token) {
     redirect("/login");
   }
 

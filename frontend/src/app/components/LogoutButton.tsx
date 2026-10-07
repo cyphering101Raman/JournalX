@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { useState } from "react";
+import api from "@/app/lib/axios";
 
 export default function LogoutButton() {
   const router = useRouter();
@@ -11,7 +12,7 @@ export default function LogoutButton() {
   const handleLogout = async () => {
     setLoading(true);
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
+      await api.post("/auth/logout");
       toast.success("Logged out successfully");
       window.location.href = "/";
     } catch {

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { validateSignup, validateLogin } from "@/app/utils/validators";
+import api from "@/app/lib/axios";
 
 export default function AuthForm({ type }: { type: "login" | "signup" }) {
   const router = useRouter();
@@ -46,26 +47,13 @@ export default function AuthForm({ type }: { type: "login" | "signup" }) {
     setLoading(true);
 
     try {
-      const res = await fetch(`/api/auth/${type}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-      });
-
-      const data = await res.json();
-      
-      if (res.ok) {
-        toast.success(type === "login" ? "Logged in successfully!" : "Account created successfully!");
-        window.location.href = "/";
-      } else {
-        const err = data.error || data.message;
-        const msg = typeof err === "object" ? Object.values(err)[0] as string : err;
-        setMessage(msg || "Authentication failed.");
-      }
-    } catch (err) {
-      setMessage("Something went wrong.");
+      const { data } = await api.post(`/auth/${type}`, form);
+      toast.success(type === "login" ? "Logged in successfully!" : "Account created successfully!");
+      window.location.href = "/";
+    } catch (err: any) {
+      const errorMsg = err.response?.data?.error || err.response?.data?.message || "Authentication failed.";
+      const msg = typeof errorMsg === "object" ? Object.values(errorMsg)[0] as string : errorMsg;
+      setMessage(msg || "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -90,7 +78,7 @@ export default function AuthForm({ type }: { type: "login" | "signup" }) {
               className={`px-4 py-3 rounded-xl bg-white/5 border ${fieldErrors.name ? 'border-red-500/50' : 'border-white/10'} text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-transparent transition-all`}
               placeholder="John Doe"
               value={form.name}
-              onChange={(e) => handleInputChange("name", e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("name", e.target.value)}
             />
             {fieldErrors.name && (
               <p className="text-[11px] text-red-400 font-medium px-1 mt-0.5 animate-in fade-in slide-in-from-top-1">
@@ -107,7 +95,7 @@ export default function AuthForm({ type }: { type: "login" | "signup" }) {
             className={`px-4 py-3 rounded-xl bg-white/5 border ${fieldErrors.email ? 'border-red-500/50' : 'border-white/10'} text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-transparent transition-all`}
             placeholder="you@example.com"
             value={form.email}
-            onChange={(e) => handleInputChange("email", e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("email", e.target.value)}
           />
           {fieldErrors.email && (
             <p className="text-[11px] text-red-400 font-medium px-1 mt-0.5 animate-in fade-in slide-in-from-top-1">
@@ -125,7 +113,7 @@ export default function AuthForm({ type }: { type: "login" | "signup" }) {
               className={`w-full px-4 py-3 rounded-xl bg-white/5 border ${fieldErrors.password ? 'border-red-500/50' : 'border-white/10'} text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-transparent transition-all pr-12`}
               placeholder="••••••••"
               value={form.password}
-              onChange={(e) => handleInputChange("password", e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("password", e.target.value)}
             />
             <button
               type="button"
