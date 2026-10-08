@@ -76,7 +76,7 @@ export class JournalController {
         return;
       }
 
-      const { id } = req.params;
+      const id = req.params.id as string;
       const success = await JournalService.deleteJournal(userId, id);
       if (!success) {
         res.status(404).json({ error: "Journal entry not found" });
