@@ -1,111 +1,85 @@
+"use client";
+
 import Link from "next/link";
-import { cookies } from "next/headers";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import LogoutButton from "./LogoutButton";
 
-export default async function Navbar() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value || cookieStore.get("auth-session")?.value;
-  const isLoggedIn = !!token;
+export default function Navbar() {
+  const pathname = usePathname();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const hasToken =
+      document.cookie.includes("token=") ||
+      document.cookie.includes("auth-session=");
+    setIsLoggedIn(hasToken);
+  }, [pathname]);
 
   return (
-    <div className="fixed top-0 left-0 w-full z-50">
-      {/* Subtle top accent line */}
-      <div className="h-px w-full bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent" />
+    <header className="fixed top-0 left-0 right-0 z-50 w-full bg-[#07080e]/90 backdrop-blur-md border-b border-white/10">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 py-3.5 flex items-center justify-between">
+        {/* Brand */}
+        <Link href="/" className="group flex items-center gap-3 active:scale-95 transition-transform">
+          <Image
+            src="/JournalX-icon.png"
+            alt="JournalX Icon"
+            width={34}
+            height={34}
+            className="rounded-xl object-contain group-hover:scale-105 transition-transform"
+          />
+          <span className="text-lg sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-indigo-100 to-purple-300 bg-clip-text text-transparent">
+            JournalX
+          </span>
+        </Link>
 
-      <div
-        className="w-full"
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(15,23,42,0.85) 0%, rgba(10,10,18,0.9) 100%)",
-          backdropFilter: "blur(20px) saturate(1.5)",
-          WebkitBackdropFilter: "blur(20px) saturate(1.5)",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-          boxShadow:
-            "0 1px 0 0 rgba(99,102,241,0.08), 0 8px 32px -8px rgba(0,0,0,0.5)",
-        }}
-      >
-        <nav className="flex items-center justify-between px-8 md:px-20 py-3.5 max-w-[1440px] mx-auto w-full">
-          {/* Brand */}
-          <Link href="/" className="group flex items-center gap-2.5">
-            {/* Wordmark */}
-            <span
-              className="text-[17px] font-bold tracking-tight"
-              style={{
-                background:
-                  "linear-gradient(90deg, #e0e7ff 0%, #a5b4fc 50%, #c4b5fd 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              JournalX
-            </span>
-          </Link>
+        {/* Navigation Links & Actions */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {isLoggedIn ? (
+            <>
+              <NavLink href="/journal">Journal</NavLink>
+              <NavLink href="/insights">Insights</NavLink>
+              <div className="w-px h-4 bg-white/10 mx-1 sm:mx-2" />
+              <LogoutButton />
+            </>
+          ) : (
+            <>
+              <NavLink href="/login">Log in</NavLink>
 
-          {/* Nav Actions */}
-          <div className="flex items-center gap-2">
-            {isLoggedIn ? (
-              <>
-                <NavLink href="/journal">Journal</NavLink>
-                <NavLink href="/insights">Insights</NavLink>
-                <div className="w-px h-4 bg-white/10 mx-1" />
-                <LogoutButton />
-              </>
-            ) : (
-              <>
-                <NavLink href="/login">Log in</NavLink>
-
-                {/* CTA Button */}
-                <Link
-                  href="/signup"
-                  id="navbar-cta-signup"
-                  className="relative ml-1 group"
-                >
-                  <div
-                    className="absolute -inset-0.5 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300 blur-sm"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, #6366f1, #a855f7)",
-                    }}
-                  />
-                  <span
-                    className="relative flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold text-white"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, rgba(99,102,241,0.9) 0%, rgba(139,92,246,0.9) 100%)",
-                      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.15)",
-                    }}
+              {/* Get Started CTA */}
+              <Link
+                href="/signup"
+                id="navbar-cta-signup"
+                className="relative group ml-1"
+              >
+                <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-70 group-hover:opacity-100 blur-sm transition-opacity duration-300" />
+                <span className="relative flex items-center gap-1.5 px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 group-hover:from-indigo-500 group-hover:to-purple-500 shadow-lg transition-all active:scale-95">
+                  Get Started
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="translate-x-0 group-hover:translate-x-1 transition-transform duration-200"
                   >
-                    Get Started
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 12 12"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="translate-x-0 group-hover:translate-x-0.5 transition-transform duration-200"
-                    >
-                      <path
-                        d="M2.5 6h7M6.5 3l3 3-3 3"
-                        stroke="white"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </span>
-                </Link>
-              </>
-            )}
-          </div>
-        </nav>
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </Link>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </header>
   );
 }
 
-// Reusable nav link with subtle hover state
+// Reusable NavLink with active state detection
 function NavLink({
   href,
   children,
@@ -113,18 +87,19 @@ function NavLink({
   href: string;
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const isActive = pathname === href;
+
   return (
     <Link
       href={href}
-      className="relative px-3 py-2 text-sm font-medium text-zinc-400 hover:text-zinc-100 transition-colors duration-200 rounded-lg hover:bg-white/[0.05] group"
+      className={`relative px-3.5 py-1.5 text-xs sm:text-sm font-medium transition-all duration-200 rounded-full ${
+        isActive
+          ? "text-white bg-indigo-500/20 border border-indigo-500/35 shadow-[0_0_12px_rgba(99,102,241,0.25)]"
+          : "text-zinc-400 hover:text-white hover:bg-white/[0.06]"
+      }`}
     >
       {children}
-      <span
-        className="absolute bottom-1 left-3 right-3 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        style={{
-          background: "linear-gradient(90deg, transparent, rgba(99,102,241,0.6), transparent)",
-        }}
-      />
     </Link>
   );
 }

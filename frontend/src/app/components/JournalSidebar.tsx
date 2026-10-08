@@ -14,12 +14,6 @@ interface JournalSidebarProps {
   onDelete: (id: string) => void;
 }
 
-function stripHtml(html: string) {
-  if (!html) return "Empty entry...";
-  const tmp = html.replace(/<[^>]*>?/gm, "").trim();
-  return tmp || "Empty entry...";
-}
-
 export default function JournalSidebar({
   journals,
   activeId,
@@ -29,43 +23,6 @@ export default function JournalSidebar({
 }: JournalSidebarProps) {
   return (
     <aside className="w-[280px] bg-[#0c0d15] border-r border-white/5 flex flex-col p-5 shrink-0 relative z-10 select-none">
-      {/* Brand Header */}
-      <div className="flex items-center justify-between mb-6 px-1">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-[#9da0ff] flex items-center justify-center text-[#0c0d15] font-bold shadow-md shadow-indigo-500/10">
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/>
-            </svg>
-          </div>
-          <span className="text-base font-bold text-white tracking-tight">JournalX</span>
-        </div>
-        <button
-          onClick={onCreate}
-          className="p-1.5 text-zinc-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
-          title="New Journal"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-            <line x1="12" y1="8" x2="12" y2="16" />
-            <line x1="8" y1="12" x2="16" y2="12" />
-          </svg>
-        </button>
-      </div>
-
       {/* New Journal Button */}
       <button
         onClick={onCreate}
@@ -83,17 +40,15 @@ export default function JournalSidebar({
         <ul className="flex flex-col gap-1.5">
           {journals.map((journal) => {
             const isActive = activeId === journal.id;
-            const snippet = stripHtml(journal.content);
 
             return (
               <li key={journal.id} className="relative group">
                 <button
                   onClick={() => onSelect(journal.id)}
-                  className={`w-full text-left p-3 rounded-2xl transition-all flex items-start gap-3 relative border ${
-                    isActive
+                  className={`w-full text-left p-3 rounded-2xl transition-all flex items-center gap-3 relative border ${isActive
                       ? "bg-[#1c1e30] border-indigo-500/20 text-white shadow-md shadow-indigo-950/40"
                       : "bg-transparent border-transparent text-zinc-400 hover:bg-white/5 hover:text-zinc-200"
-                  }`}
+                    }`}
                 >
                   <svg
                     width="16"
@@ -102,23 +57,20 @@ export default function JournalSidebar({
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
-                    className={`mt-0.5 shrink-0 ${isActive ? "text-indigo-400" : "text-zinc-500"}`}
+                    className={`shrink-0 ${isActive ? "text-indigo-400" : "text-zinc-500"}`}
                   >
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                     <polyline points="14 2 14 8 20 8" />
                   </svg>
 
-                  <div className="flex-1 min-w-0 pr-3">
+                  <div className="flex-1 min-w-0 pr-6">
                     <p className={`text-xs font-semibold truncate ${isActive ? "text-white" : "text-zinc-300"}`}>
                       {journal.title}
-                    </p>
-                    <p className="text-[11px] text-zinc-500 truncate mt-0.5">
-                      {snippet}
                     </p>
                   </div>
 
                   {isActive && (
-                    <span className="absolute right-3 top-3.5 w-1.5 h-1.5 rounded-full bg-[#9da0ff] shadow-[0_0_8px_#9da0ff]" />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-[#9da0ff] shadow-[0_0_8px_#9da0ff] transition-opacity duration-200 group-hover:opacity-0" />
                   )}
                 </button>
 
@@ -128,7 +80,7 @@ export default function JournalSidebar({
                     e.stopPropagation();
                     onDelete(journal.id);
                   }}
-                  className="absolute right-2 top-2.5 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 text-zinc-400 hover:text-red-400 hover:bg-white/10 transition-all"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 text-zinc-400 hover:text-red-400 hover:bg-white/10 transition-all z-10"
                   title="Delete journal"
                 >
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

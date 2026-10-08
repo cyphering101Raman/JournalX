@@ -41,6 +41,17 @@ export default function JournalEditor({
 
   const latestRef = useRef({ journalId, title: initialTitle, content: initialContent, isDirty: false });
 
+  // Save outgoing journal entry when switching journalId or unmounting
+  useEffect(() => {
+    return () => {
+      if (latestRef.current.isDirty) {
+        const { journalId: saveId, title: saveTitle, content: saveContent } = latestRef.current;
+        latestRef.current.isDirty = false;
+        api.post("/journal/save", { journalId: saveId, title: saveTitle, content: saveContent }).catch(() => {});
+      }
+    };
+  }, [journalId]);
+
   // Update internal state if active journal changes
   useEffect(() => {
     setTitle(initialTitle);
@@ -66,7 +77,7 @@ export default function JournalEditor({
     if (onUpdate) onUpdate(title, newContent);
   };
 
-  // Auto-save logic (2s debounce) + Save on switch/unmount
+  // Auto-save logic (1.2s debounce after typing stops)
   useEffect(() => {
     if (!latestRef.current.isDirty) return;
 
@@ -85,16 +96,10 @@ export default function JournalEditor({
       } catch {
         setStatus("error");
       }
-    }, 2000);
+    }, 1200);
 
     return () => {
       clearTimeout(handler);
-      // Immediately save outgoing journal if dirty when switching or unmounting
-      if (latestRef.current.isDirty) {
-        const { journalId: saveId, title: saveTitle, content: saveContent } = latestRef.current;
-        latestRef.current.isDirty = false;
-        api.post("/journal/save", { journalId: saveId, title: saveTitle, content: saveContent }).catch(() => {});
-      }
     };
   }, [title, content, journalId]);
 
