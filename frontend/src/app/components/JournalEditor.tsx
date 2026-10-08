@@ -35,7 +35,7 @@ export default function JournalEditor({
   const [title, setTitle] = useState(initialTitle);
   const [content, setContent] = useState(initialContent);
   const [insights, setInsights] = useState(initialInsights);
-  const [status, setStatus] = useState<"typing" | "saving" | "saved" | "error">("saved");
+  const [status, setStatus] = useState<"idle" | "typing" | "saving" | "saved" | "error">("saved");
   const [isGenerating, setIsGenerating] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
