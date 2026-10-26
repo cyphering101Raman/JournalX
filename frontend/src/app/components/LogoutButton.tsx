@@ -28,7 +28,7 @@ export default function LogoutButton() {
       id="navbar-logout-btn"
       onClick={handleLogout}
       disabled={loading}
-      className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.05] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+      className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-zinc-400 border border-transparent hover:text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/20 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
     >
       {loading ? (
         <>

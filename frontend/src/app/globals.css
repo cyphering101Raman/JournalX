@@ -44,6 +44,20 @@ body {
 .tiptap-wrapper .ProseMirror ol { list-style-type: decimal; margin-left: 1.5rem; margin-bottom: 1rem; }
 .tiptap-wrapper .ProseMirror strong { font-weight: 700; color: #fff; }
 .tiptap-wrapper .ProseMirror em { font-style: italic; }
+.tiptap-wrapper .ProseMirror blockquote {
+  border-left: 3px solid #818cf8;
+  padding-left: 1rem;
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+  margin: 1rem 0;
+  font-style: italic;
+  color: #d4d4d8;
+  background: rgba(129, 140, 248, 0.05);
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+.tiptap-wrapper .ProseMirror blockquote p {
+  margin-bottom: 0;
+}
 
 .tiptap-wrapper .is-editor-empty:first-child::before {
   color: #52525b;
@@ -146,6 +160,32 @@ body {
   margin: 1rem 0;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  transition: width 0.2s ease, outline 0.15s ease;
+  cursor: pointer;
+}
+
+.tiptap-wrapper .ProseMirror img.ProseMirror-selectednode {
+  outline: 2px solid #818cf8;
+  outline-offset: 2px;
+  box-shadow: 0 0 20px rgba(129, 140, 248, 0.35);
+}
+
+.tiptap-wrapper .ProseMirror img[data-align="center"] {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.tiptap-wrapper .ProseMirror img[data-align="left"] {
+  display: block;
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.tiptap-wrapper .ProseMirror img[data-align="right"] {
+  display: block;
+  margin-left: auto;
+  margin-right: 0;
 }
 
 
