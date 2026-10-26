@@ -51,7 +51,12 @@ export default function AuthForm({ type }: { type: "login" | "signup" }) {
       toast.success(type === "login" ? "Logged in successfully!" : "Account created successfully!");
       window.location.href = "/";
     } catch (err: any) {
-      const errorMsg = err.response?.data?.error || err.response?.data?.message || "Authentication failed.";
+      const resp = err.response?.data;
+      const errorMsg =
+        (resp?.error && resp.error !== "Internal Server Error" ? resp.error : null) ||
+        resp?.message ||
+        resp?.error ||
+        "Authentication failed. Please try again.";
       const msg = typeof errorMsg === "object" ? (Object.values(errorMsg)[0] as string) : errorMsg;
       setMessage(msg || "Something went wrong.");
     } finally {

@@ -32,6 +32,10 @@ export class AuthController {
 
       res.status(201).json(result);
     } catch (error: any) {
+      if (error?.message?.includes("already exists") || error?.code === 11000) {
+        res.status(409).json({ error: "User already exists with this email." });
+        return;
+      }
       next(error);
     }
   }
@@ -45,6 +49,10 @@ export class AuthController {
 
       res.status(200).json(result);
     } catch (error: any) {
+      if (error?.message === "Invalid credentials.") {
+        res.status(401).json({ error: "Invalid credentials." });
+        return;
+      }
       next(error);
     }
   }
