@@ -277,11 +277,6 @@ export default function Page() {
                   alt={card.label}
                   className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500"
                 />
-                {card.tag && (
-                  <div className="absolute top-3 right-3 px-2.5 py-0.5 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-[9px] font-bold text-indigo-300 uppercase tracking-widest z-10">
-                    {card.tag}
-                  </div>
-                )}
                 <div className="relative z-10 p-5 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
                   <span className="text-2xl font-extrabold text-white">{card.val}</span>
                   <span className="block text-xs text-zinc-300 uppercase tracking-widest font-bold">{card.label}</span>
