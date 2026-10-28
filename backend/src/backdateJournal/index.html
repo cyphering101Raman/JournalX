@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JournalX - Backdate Tool</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #09090b;
+      color: #fafafa;
+      display: flex;
+      justify-content: center;
+      padding: 30px 20px;
+      margin: 0;
+    }
+    .card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 16px;
+      padding: 28px;
+      width: 100%;
+      max-width: 620px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    h1 {
+      font-size: 20px;
+      margin-top: 0;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+    p.subtitle {
+      color: #a1a1aa;
+      font-size: 13px;
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+    #status {
+      margin-bottom: 20px;
+      font-size: 13px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      display: none;
+      line-height: 1.4;
+    }
+    .success {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #34d399;
+    }
+    .error {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #f87171;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .field-group {
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: #a1a1aa;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      background: #09090b;
+      border: 1px solid #3f3f46;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 13px;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input:focus, textarea:focus {
+      border-color: #6366f1;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 150px;
+      line-height: 1.5;
+    }
+    button {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      margin-top: 6px;
+    }
+    button:hover {
+      opacity: 0.92;
+    }
+    button:active {
+      transform: scale(0.99);
+    }
+    .recent-list {
+      margin-top: 24px;
+      border-top: 1px solid #27272a;
+      padding-top: 16px;
+    }
+    .recent-list h3 {
+      font-size: 11px;
+      color: #71717a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0 0 10px 0;
+    }
+    .recent-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #d4d4d8;
+      padding: 6px 0;
+      border-bottom: 1px solid #1f1f23;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🗓️ Backdate Journal Entry</h1>
+    <p class="subtitle">Direct AES-256 encrypted persistence into MongoDB (timestamps match entry date).</p>
+
+    <!-- Top Status Notification Popup -->
+    <div id="status"></div>
+
+    <form id="backdateForm">
+      <!-- Row 1: User ID and Date -->
+      <div class="grid-2">
+        <div>
+          <label for="userId">User ID</label>
+          <input type="text" id="userId" placeholder="MongoDB User _id" required>
+        </div>
+        <div>
+          <label for="dateKey">Date</label>
+          <input type="date" id="dateKey" required>
+        </div>
+      </div>
+
+      <!-- Row 2: Title -->
+      <div class="field-group">
+        <label for="title">Title <span style="color: #ef4444;">*</span></label>
+        <input type="text" id="title" placeholder="Enter journal title (mandatory)" required>
+      </div>
+
+      <!-- Row 3: Journal Content -->
+      <div class="field-group">
+        <label for="content">Journal Content</label>
+        <textarea id="content" placeholder="Write or paste your journal content here..." required></textarea>
+      </div>
+
+      <!-- Row 4: Save Button -->
+      <button type="submit" id="submitBtn">Save Entry to MongoDB</button>
+    </form>
+
+    <div class="recent-list" id="recentList" style="display: none;">
+      <h3>Saved in this session</h3>
+      <div id="recentItems"></div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('backdateForm');
+    const statusDiv = document.getElementById('status');
+    const recentList = document.getElementById('recentList');
+    const recentItems = document.getElementById('recentItems');
+    const titleInput = document.getElementById('title');
+
+    // Reset red border on input
+    titleInput.addEventListener('input', () => {
+      titleInput.style.borderColor = '#3f3f46';
+      titleInput.style.boxShadow = 'none';
+    });
+
+    // Remember last used userId in localStorage for convenience
+    const savedUserId = localStorage.getItem('journalx_backdate_userid');
+    if (savedUserId) {
+      document.getElementById('userId').value = savedUserId;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      statusDiv.style.display = 'none';
+
+      const userId = document.getElementById('userId').value.trim();
+      const dateKey = document.getElementById('dateKey').value;
+      const title = titleInput.value.trim();
+      const content = document.getElementById('content').value;
+
+      if (!title) {
+        titleInput.style.borderColor = '#ef4444';
+        titleInput.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.4)';
+        statusDiv.className = 'error';
+        statusDiv.innerHTML = '❌ <strong>Error:</strong> Title is mandatory. Please enter a title for this journal entry.';
+        statusDiv.style.display = 'block';
+        titleInput.focus();
+        return;
+      }
+
+      localStorage.setItem('journalx_backdate_userid', userId);
+
+      const payload = { userId, dateKey, title, content };
+
+      try {
+        const res = await fetch('http://localhost:5005/backdate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          statusDiv.className = 'success';
+          statusDiv.innerHTML = `✅ <strong>Success!</strong> Saved entry for <strong>${data.dateKey}</strong> (ID: <code>${data.journalId}</code>)`;
+          statusDiv.style.display = 'block';
+
+          // Add to recent items
+          recentList.style.display = 'block';
+          const item = document.createElement('div');
+          item.className = 'recent-item';
+          item.innerHTML = `<span>✓ ${data.dateKey} — ${data.title}</span><span style="color:#71717a">${data.journalId.slice(-6)}</span>`;
+          recentItems.prepend(item);
+
+          // Clear content & step date back 1 day
+          document.getElementById('content').value = '';
+          document.getElementById('title').value = '';
+          const prevDay = new Date(new Date(dateKey).getTime() - 86400000).toISOString().split('T')[0];
+          document.getElementById('dateKey').value = prevDay;
+        } else {
+          throw new Error(data.error || 'Failed to save');
+        }
+      } catch (err) {
+        statusDiv.className = 'error';
+        statusDiv.innerHTML = `❌ <strong>Error:</strong> ${err.message}.<br><small>Make sure the standalone runner is active: <code>npx ts-node src/backdateJournal/server.ts</code></small>`;
+        statusDiv.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>
