@@ -266,7 +266,7 @@ export default function Page() {
 
           <div className="grid grid-cols-2 gap-4">
             {[
-              { img: "/private-card.png", val: "100%", label: "Private", tag: "Upcoming" },
+              { img: "/private-card.png", val: "100%", label: "Private"},
               { img: "/ai-driven.png", val: "AI", label: "Driven" },
               { img: "/history-card.png", val: "∞", label: "History" },
               { img: "/insights-card.png", val: "3+", label: "Insights" },
@@ -295,7 +295,7 @@ export default function Page() {
       <SectionDivider />
 
       {/* Final CTA */}
-      <section className="py-32 px-6 text-center relative">
+      <section className="py-26 px-6 text-center relative">
         <div className="max-w-4xl mx-auto space-y-8">
           <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white">
             Ready to see the patterns in your life?
