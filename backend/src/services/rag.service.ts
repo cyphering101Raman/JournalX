@@ -74,6 +74,7 @@ User Question: ${queryText}
     await AIGeneration.create({
       userId,
       promptType: "rag_query",
+      query: queryText,
       response: answer,
     }).catch((err) => console.error("Failed to log AIGeneration:", err));
 

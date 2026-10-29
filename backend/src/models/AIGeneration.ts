@@ -3,6 +3,7 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 export interface IAIGeneration extends Document {
   userId: mongoose.Types.ObjectId;
   promptType: string;
+  query?: string;
   response: string;
   createdAt: Date;
 }
@@ -17,6 +18,10 @@ const AIGenerationSchema = new Schema<IAIGeneration>(
     promptType: {
       type: String,
       required: true
+    },
+    query: {
+      type: String,
+      default: ""
     },
     response: {
       type: String,
