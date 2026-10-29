@@ -18,8 +18,8 @@ export const metadata: Metadata = {
   title: "JournalX",
   description: "The AI-Powered Journaling Platform",
   icons: {
-    icon: "/JournalX-icon.png",
-    shortcut: "/JournalX-icon.png",
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
     apple: "/JournalX-icon.png",
   },
 };

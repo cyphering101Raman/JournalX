@@ -21,13 +21,13 @@ export default function Navbar() {
     <header className="fixed top-0 left-0 right-0 z-50 w-full bg-[#07080e]/90 backdrop-blur-md border-b border-white/10">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 py-3.5 flex items-center justify-between">
         {/* Brand */}
-        <Link href="/" className="group flex items-center gap-3 active:scale-95 transition-transform">
+        <Link href="/" className="group flex items-center gap-1.5 active:scale-95 transition-transform">
           <Image
             src="/JournalX-icon.png"
             alt="JournalX Icon"
-            width={34}
-            height={34}
-            className="rounded-xl object-contain group-hover:scale-105 transition-transform"
+            width={44}
+            height={44}
+            className="object-contain group-hover:scale-105 transition-transform"
           />
           <span className="text-lg sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-indigo-100 to-purple-300 bg-clip-text text-transparent">
             JournalX
