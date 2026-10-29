@@ -10,6 +10,8 @@ interface Journal {
   id: string;
   title: string;
   content: string;
+  createdAt?: string;
+  updatedAt?: string;
   insights: {
     mood: string;
     summary: string;
@@ -40,6 +42,8 @@ export default function JournalWorkspace() {
           id: j._id,
           title: j.title,
           content: j.content,
+          createdAt: j.createdAt,
+          updatedAt: j.updatedAt,
           insights: j.insights || [],
         }));
         setJournals(mapped);
@@ -70,6 +74,8 @@ export default function JournalWorkspace() {
         id: data.journal._id,
         title: data.journal.title,
         content: data.journal.content,
+        createdAt: data.journal.createdAt,
+        updatedAt: data.journal.updatedAt,
         insights: data.journal.insights || [],
       };
 
@@ -85,7 +91,7 @@ export default function JournalWorkspace() {
     setJournals((prev) =>
       prev.map((journal) =>
         journal.id === activeJournalId
-          ? { ...journal, title, content, insights: insights || journal.insights }
+          ? { ...journal, title, content, updatedAt: new Date().toISOString(), insights: insights || journal.insights }
           : journal
       )
     );
@@ -136,6 +142,8 @@ export default function JournalWorkspace() {
           journalId={activeJournal.id}
           initialTitle={activeJournal.title}
           initialContent={activeJournal.content}
+          createdAt={activeJournal.createdAt}
+          updatedAt={activeJournal.updatedAt}
           initialInsights={activeJournal.insights}
           onUpdate={handleUpdateJournal}
         />

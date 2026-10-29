@@ -9,6 +9,8 @@ interface JournalEditorProps {
   journalId: string;
   initialTitle?: string;
   initialContent?: string;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
   initialInsights?: {
     mood: string;
     summary: string;
@@ -25,21 +27,104 @@ function countWords(html: string): number {
   return text.split(/\s+/).filter(Boolean).length;
 }
 
+function getWeatherIcon(code: number): string {
+  if (code === 0) return "☀️";
+  if (code >= 1 && code <= 3) return "⛅";
+  if (code >= 45 && code <= 48) return "🌫️";
+  if (code >= 51 && code <= 67) return "🌧️";
+  if (code >= 71 && code <= 77) return "❄️";
+  if (code >= 80 && code <= 82) return "🌦️";
+  if (code >= 95) return "⛈️";
+  return "🌤️";
+}
+
+function formatDateTime(dateVal?: string | Date): string {
+  if (!dateVal) return "";
+  const d = new Date(dateVal);
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function formatDateOnly(dateVal?: string | Date): string {
+  if (!dateVal) return "";
+  const d = new Date(dateVal);
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
 export default function JournalEditor({
   journalId,
   initialTitle = "",
   initialContent = "",
+  createdAt,
+  updatedAt,
   initialInsights = [],
   onUpdate,
 }: JournalEditorProps) {
   const [title, setTitle] = useState(initialTitle);
   const [content, setContent] = useState(initialContent);
   const [insights, setInsights] = useState(initialInsights);
+  const [lastUpdated, setLastUpdated] = useState<string | Date | undefined>(updatedAt);
   const [status, setStatus] = useState<"idle" | "typing" | "saving" | "saved" | "error">("saved");
   const [isGenerating, setIsGenerating] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [geoWeather, setGeoWeather] = useState<{ city: string; temp: string; weatherIcon: string } | null>(null);
 
   const latestRef = useRef({ journalId, title: initialTitle, content: initialContent, isDirty: false });
+
+  // Fetch location & weather via IP and Open-Meteo with 2-hour localStorage cache
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem("journalx_geo_weather");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Date.now() - parsed.timestamp < 2 * 60 * 60 * 1000) {
+          setGeoWeather(parsed.data);
+          return;
+        }
+      }
+    } catch {}
+
+    const fetchGeoAndWeather = async () => {
+      try {
+        const ipRes = await fetch("https://ipapi.co/json/");
+        if (!ipRes.ok) return;
+        const ipData = await ipRes.json();
+        const city = ipData.city;
+        const lat = ipData.latitude;
+        const lon = ipData.longitude;
+
+        if (city && lat !== undefined && lon !== undefined) {
+          const weatherRes = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code`
+          );
+          if (weatherRes.ok) {
+            const weatherData = await weatherRes.json();
+            const temp = `${Math.round(weatherData.current?.temperature_2m ?? 0)}°C`;
+            const weatherIcon = getWeatherIcon(weatherData.current?.weather_code ?? 0);
+            const data = { city, temp, weatherIcon };
+            setGeoWeather(data);
+            try {
+              localStorage.setItem("journalx_geo_weather", JSON.stringify({ data, timestamp: Date.now() }));
+            } catch {}
+          }
+        }
+      } catch {
+        // Silently fall back if blocked by privacy shields or offline
+      }
+    };
+
+    fetchGeoAndWeather();
+  }, []);
 
   // Save outgoing journal entry when switching journalId or unmounting
   useEffect(() => {
@@ -57,9 +142,10 @@ export default function JournalEditor({
     setTitle(initialTitle);
     setContent(initialContent);
     setInsights(initialInsights);
+    setLastUpdated(updatedAt);
     setStatus("saved");
     latestRef.current = { journalId, title: initialTitle, content: initialContent, isDirty: false };
-  }, [journalId]);
+  }, [journalId, updatedAt]);
 
   const handleTitleChange = (newTitle: string) => {
     setTitle(newTitle);
@@ -93,6 +179,7 @@ export default function JournalEditor({
         });
         latestRef.current.isDirty = false;
         setStatus("saved");
+        setLastUpdated(new Date());
       } catch {
         setStatus("error");
       }
@@ -114,6 +201,7 @@ export default function JournalEditor({
       });
       latestRef.current.isDirty = false;
       setStatus("saved");
+      setLastUpdated(new Date());
       setTimeout(() => setStatus("idle"), 2000);
       toast.success("Saved your entry!");
     } catch {
@@ -151,13 +239,13 @@ export default function JournalEditor({
     <div className="flex-1 flex flex-col h-full bg-[#0b0c13] text-slate-100 overflow-hidden relative">
       {/* Main Top Header */}
       <div className="px-8 pt-8 pb-4 flex flex-col gap-2">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <input
             type="text"
             placeholder="Untitled Journal..."
             value={title}
             onChange={(e) => handleTitleChange(e.target.value)}
-            className="text-3xl md:text-4xl font-serif font-normal bg-transparent border-none outline-none text-white placeholder-zinc-700 tracking-tight"
+            className="flex-1 min-w-0 text-3xl md:text-4xl font-serif font-normal bg-transparent border-none outline-none text-white placeholder-zinc-700 tracking-tight"
           />
 
           {/* Top Right Controls */}
@@ -193,24 +281,35 @@ export default function JournalEditor({
                 : "Saved"}
             </span>
 
-            <button
+            {/* Deprecated: Single-entry insight button */}
+            {/* <button
               onClick={handleGenerateInsight}
               disabled={isGenerating}
               className="flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-purple-600/80 to-indigo-600/80 text-white hover:from-purple-500 hover:to-indigo-500 transition-all border border-purple-400/30 shadow-md shadow-purple-500/10 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97]"
             >
               <span>✨</span>
               <span>{isGenerating ? "Analyzing..." : "Generate AI Insight"}</span>
-            </button>
+            </button> */}
           </div>
         </div>
 
         {/* Subheader Metadata */}
-        <div className="flex items-center gap-2 text-xs font-medium text-zinc-500">
-          <span>☀️ 28°C</span>
-          <span>•</span>
-          <span>New Delhi</span>
-          <span>•</span>
+        <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-zinc-500">
+          {geoWeather && (
+            <>
+              <span>{geoWeather.weatherIcon} {geoWeather.temp}</span>
+              <span>•</span>
+              <span>{geoWeather.city}</span>
+              <span>•</span>
+            </>
+          )}
           <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+          {lastUpdated && (
+            <>
+              <span>•</span>
+              <span className="text-zinc-400">Updated {formatDateTime(lastUpdated)}</span>
+            </>
+          )}
         </div>
       </div>
 
@@ -223,8 +322,8 @@ export default function JournalEditor({
           />
         </div>
 
-        {/* AI Insights Log Sidebar */}
-        {insights.length > 0 && (
+        {/* AI Insights Log Sidebar (Deprecated) */}
+        {/* {insights.length > 0 && (
           <div className="w-72 ml-6 border-l border-white/5 pl-6 overflow-y-auto custom-scrollbar flex flex-col gap-4">
             <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
               <span>✨</span> Insights Log
@@ -252,7 +351,7 @@ export default function JournalEditor({
               </div>
             ))}
           </div>
-        )}
+        )} */}
       </div>
 
       {/* Footer Controls Bar */}
@@ -263,7 +362,16 @@ export default function JournalEditor({
         </div>
 
         <div className="flex items-center gap-6">
-          <span>Word count: {wordCount} • {readTime} min read</span>
+          {createdAt && (
+            <span className="text-zinc-500">
+              Created: <span className="text-zinc-400">{formatDateOnly(createdAt)}</span>
+            </span>
+          )}
+          <div className="flex items-center gap-3">
+            <span>Word count: {wordCount}</span>
+            <span className="text-zinc-600">•</span>
+            <span>{readTime} min read</span>
+          </div>
 
           <button
             onClick={handleManualSave}
