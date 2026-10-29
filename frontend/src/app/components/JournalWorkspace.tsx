@@ -91,7 +91,7 @@ export default function JournalWorkspace() {
     setJournals((prev) =>
       prev.map((journal) =>
         journal.id === activeJournalId
-          ? { ...journal, title, content, updatedAt: new Date().toISOString(), insights: insights || journal.insights }
+          ? { ...journal, title, content, insights: insights || journal.insights }
           : journal
       )
     );

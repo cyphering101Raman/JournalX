@@ -145,7 +145,7 @@ export default function JournalEditor({
     setLastUpdated(updatedAt);
     setStatus("saved");
     latestRef.current = { journalId, title: initialTitle, content: initialContent, isDirty: false };
-  }, [journalId, updatedAt]);
+  }, [journalId]);
 
   const handleTitleChange = (newTitle: string) => {
     setTitle(newTitle);
@@ -163,7 +163,7 @@ export default function JournalEditor({
     if (onUpdate) onUpdate(title, newContent);
   };
 
-  // Auto-save logic (1.2s debounce after typing stops)
+  // Auto-save logic (3s debounce after typing stops)
   useEffect(() => {
     if (!latestRef.current.isDirty) return;
 
@@ -172,18 +172,21 @@ export default function JournalEditor({
       if (!latestRef.current.isDirty) return;
       setStatus("saving");
       try {
-        await api.post("/journal/save", {
-          journalId: currentSaveId,
-          title: latestRef.current.title,
-          content: latestRef.current.content,
-        });
+        await Promise.all([
+          api.post("/journal/save", {
+            journalId: currentSaveId,
+            title: latestRef.current.title,
+            content: latestRef.current.content,
+          }),
+          new Promise((resolve) => setTimeout(resolve, 600)),
+        ]);
         latestRef.current.isDirty = false;
         setStatus("saved");
         setLastUpdated(new Date());
       } catch {
         setStatus("error");
       }
-    }, 1200);
+    }, 3000);
 
     return () => {
       clearTimeout(handler);
@@ -194,11 +197,14 @@ export default function JournalEditor({
     if (!title && !content) return;
     setStatus("saving");
     try {
-      await api.post("/journal/save", {
-        journalId,
-        title: latestRef.current.title,
-        content: latestRef.current.content,
-      });
+      await Promise.all([
+        api.post("/journal/save", {
+          journalId,
+          title: latestRef.current.title,
+          content: latestRef.current.content,
+        }),
+        new Promise((resolve) => setTimeout(resolve, 600)),
+      ]);
       latestRef.current.isDirty = false;
       setStatus("saved");
       setLastUpdated(new Date());
