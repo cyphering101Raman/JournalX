@@ -39,7 +39,7 @@ export default function Navbar() {
           {isLoggedIn ? (
             <>
               <NavLink href="/journal">Journal</NavLink>
-              <NavLink href="/insights">Insights</NavLink>
+              {/* <NavLink href="/insights">Insights</NavLink> */}
               <NavLink href="/reflect">Reflect</NavLink>
               <div className="w-px h-4 bg-white/10 mx-1 sm:mx-2" />
               <LogoutButton />
