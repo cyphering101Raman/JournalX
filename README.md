@@ -8,64 +8,108 @@
 
 ## Overview
 
-JournalX is an AI-powered personal space that transforms raw daily thoughts into actionable psychological insights. While most journaling platforms act as static text graveyards, JournalX actively decodes your entries to identify emotional resonance, summarize days concisely, and surface recurring life patterns, enabling you to track your mental evolution over time.
+**Built a privacy-first AI journaling platform** that turns raw, scattered thoughts into an intelligent personal memory system without compromising data privacy. While most journals become static graveyards of forgotten entries, JournalX protects every thought at rest with AES-256-GCM encryption and uses a multi-tenant vector RAG engine to let you converse with your past self—surfacing recurring habits, mental patterns, and personal growth with exact historical citations.
+
+---
 
 ## Key Features
 
-- ✍️ **Distraction-Free Workspace:** A premium, real-time rich text editor designed for deep focus.
-- 🎯 **Daily AI Insights:** Instantly extract the essence of your entries:
-  - **Mood:** Single-word emotional labeling.
-  - **Digest:** A succinct 2-3 line summary of your day.
-  - **Auto-Tagging:** Smart keyword extraction highlighting key topics.
-- 🕰️ **Insight History:** Trace how your reflection on past entries changes over time with historical AI generation tracking.
-- 🔭 **Big-Picture Analytics:** Generate 3—15 day meta-summaries to identify broader life patterns, habits, and your overarching emotional trend.
-- 🔒 **Private Vaults:** Secure, session-based authentication ensuring your thoughts remain strictly yours.
-- ⚖️ **Mindful Limits:** A thoughtful 3-insight daily quota designed to encourage meaningful reflection and manage context accurately.
+- 🧠 **Conversational Memory Retrieval (RAG):** Ask open-ended questions across your past entries (`/reflect`). Asymmetric semantic search retrieves relevant chunks via Pinecone and synthesizes answers with exact journal date citations.
+- 🔒 **AES-256-GCM Encryption at Rest:** Every journal entry is encrypted before hitting MongoDB using a unique 12-byte initialization vector (IV) and a 16-byte authentication tag for tamper resistance. Raw thoughts are never stored in plaintext.
+- ⚡ **Zero-Ghost Vector Synchronization:** A 45-second debounced ETL pipeline that re-chunks text upon save and cascades a purge of obsolete vectors upon edits, preventing phantom retrieval.
+- 🏢 **Multi-Tenant Vector Isolation:** Pinecone namespaces isolate each user's vector embeddings into private partitions (`.namespace(userId)`), ensuring strict multi-user privacy.
+- ✍️ **Distraction-Free TipTap Workspace:** Real-time rich-text editor with automatic weather metadata capture, dynamic ordinal titles, and a chronological sidebar timeline.
+- 💾 **Atomic Daily Autosave:** Compound MongoDB index `{ userId, dateKey }` strictly enforces one entry per day with race-condition-free atomic upserts.
+- 🛡️ **Stateless Session Security:** Passwords hashed with `bcryptjs` and auto-generated salts. Authentication runs via 7-day JWTs stored in secure `HttpOnly` cookies, shielding sessions against XSS attacks.
+
+---
 
 ## User Flow
 
-1. **Capture:** Open a clean canvas and document your daily thoughts.
-2. **Analyze:** Request an AI breakdown of your entry to instantly extract moods and summaries.
-3. **Review:** Visualize your simplified emotional data on a personalized insight card.
-4. **Reflect:** Select a custom date range to view a macro-analysis of an entire week or month, identifying hidden triggers and habits.
+1. **✍️ Write with Total Privacy (Capture):** Dump your raw thoughts into the distraction-free editor. As you type, your entry is encrypted on-the-fly with AES-256-GCM and atomically saved—no manual saving needed.
+2. **⚡ Silent Background Indexing (Sync):** Without any UI lag, the background worker cleans the text, generates 768-dimensional embeddings, and syncs them into your private Pinecone partition.
+3. **💬 Ask Your Past Self Anything (Query):** Navigate to `/reflect` and ask natural questions about your life, habits, or recurring hurdles (e.g., *"When did I feel most burned out, and how did I overcome it?"*).
+4. **🎯 Receive Grounded, Cited Answers (Synthesize):** The engine semantically searches your personal history and synthesizes an empathetic response—grounded with **exact journal date citations** so you can trace your growth.
+
+---
 
 ## Tech Stack
 
-- **Frontend:** Next.js, Tiptap, Framer Motion, Tailwind CSS
-- **Backend:** Next.js (Server Components)
-- **Database:** MongoDB
-- **AI Integrations:** Generative AI 
+* **Frontend:** Next.js 15 (App Router), React 19, TipTap Rich-Text Editor, Tailwind CSS, Framer Motion, Lucide Icons
+* **Backend:** Node.js, Express, TypeScript, AES-256-GCM (`crypto`), JWT in `HttpOnly` Cookies
+* **Database:** MongoDB & Mongoose
+* **Vector Database:** Pinecone (Multi-tenant per-user namespace isolation)
+* **AI & Embeddings:** Google Gemini 2.5 Flash & `gemini-embedding-2`
+
+---
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js installed
-- A MongoDB cluster
-- AI API Key
+* **Node.js:** v18.0.0 or higher
+* **MongoDB:** Local instance or MongoDB Atlas cluster
+* **Google Gemini API Key:** For embeddings and conversational synthesis
+* **Pinecone API Key & Index:** Configured for 768 dimensions with cosine metric
+
+---
 
 ### Run Locally
 
-1. Clone the repository:
+1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/journalx.git
-   cd journalx
+   git clone https://github.com/cyphering101Raman/JournalX.git
+   cd JournalX
    ```
-2. Install dependencies:
+
+2. **Configure and start the Backend:**
    ```bash
+   cd backend
    npm install
    ```
-3. Configure your core environment variables in the `.env` file (Database URIs, Session Secrets, AI Keys).
-4. Start the development server:
+   Create a `.env` file in `backend/`:
+   ```env
+   PORT=5000
+   MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/journalx
+   JWT_SECRET=your_jwt_secret_key
+   ENCRYPTION_KEY=your_32_character_aes_encryption_key
+   GEMINI_API_KEY=your_gemini_api_key
+   PINECONE_API_KEY=your_pinecone_api_key
+   PINECONE_INDEX_NAME=journalx
+   FRONTEND_URL=http://localhost:3000
+   ```
+   Start the backend development server:
    ```bash
    npm run dev
    ```
 
-## Roadmap ( Upcoming features )
+3. **Configure and start the Frontend:**
+   ```bash
+   cd ../frontend
+   npm install
+   ```
+   Create a `.env.local` file in `frontend/`:
+   ```env
+   NEXT_PUBLIC_API_URL=http://localhost:5000
+   ```
+   Start the frontend development server:
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-- 🛡️ **End-to-End Encryption:** Total thought security and decentralization.
-- 📊 **Advanced Visual Analytics:** Mood-over-time scatter plots and word-count correlation charts.
-- 🎙️ **Multi-Media Journaling:** Support for audio capture and visual attachments.
+---
+
+## Upcoming Roadmap
+
+- 📊 **Hierarchical 15-Day Rollups:** Zero-token mood/energy trend graphs and multi-day synthesis without context limits.
+- ☁️ **Cloud Persistence for Reflect History:** Cross-device sync for conversational Q&A threads (`/api/v1/rag/history`).
+- 🎙️ **Voice Journaling:** Native audio capture with multi-modal transcription.
+- 📞 **Conversational Voice Call Agent:** Call an empathetic AI companion to speak your heart out; on call disconnect, the session is structured, AES-encrypted, indexed into Pinecone, and confirmed via WhatsApp.
+- 💬 **WhatsApp Sync & Voice Notes:** Send quick texts or voice notes on WhatsApp to seamlessly append to your daily entry and update your vector memory without opening the web app.
+
+
+---
 
 ## Product Showcase
 
